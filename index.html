@@ -53,15 +53,15 @@
         console.log("socket connected")
         payload = {
             "method": "subscribeTokenTrade",
-            "keys": ["",
-            ""] 
+            "keys": ["DgvFao9q16v7mLMbExoLepUneNS7zJ3JnUhwdwWFpump",
+            "8tKj9TJFfsX6ioUq7eByf2u1WXHcD6e6WDdU7BAFpump"] 
         }
           ws.send(JSON.stringify(payload));
     
     }
 
-    var redMint = ''
-    var blueMint = ''
+    var redMint = 'DgvFao9q16v7mLMbExoLepUneNS7zJ3JnUhwdwWFpump'
+    var blueMint = '8tKj9TJFfsX6ioUq7eByf2u1WXHcD6e6WDdU7BAFpump'
 
     let redCa = document.getElementById('redca')
     redCa.textContent = `CA: ${redMint}`
