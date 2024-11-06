@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="index.css" rel="stylesheet">
+</head>
+<body>
+    <p id="redmcap" style="position: relative; left: 68%; color: black; font-size: 20px; font-family: 'basic'">Red Current Market Cap: Fetching / Waiting for Migration</p>
+    <p id="redhw" style="position: relative; left: 68%; font-size: 20px; font-family: 'basic'">Red Circle Current Height x Width: Fetching / Waiting for Migration</p>
+    <p id="redca" style="position: relative; left: 68%; font-size: 20px; font-family: 'basic'">CA: WE ARE SETTING UP LAUNCH NOW</p>
+    <img id="redcircle" src="redcircle.png">
+        <img id="bluecircle" src="bluecircle.png">
+    
+    
+    <p id="bluemcap" style="position: relative; top: -14%; left: 2%; font-size: 20px; font-family: basic;">Blue Current Market Cap: Fetching / Waiting for Migration</p>
+    <p id="bluehw" style="position: relative; top: -14%; left: 2%; font-size: 20px; font-family: 'basic'">Blue Circle Current Height x Width: Fetching / Waiting for Migration</p>
+    <p id="blueca" style="position: relative; top: -14%; left: 2%; font-size: 20px; font-family: 'basic'">CA: WE ARE SETTING UP LAUNCH NOW</p>
+    
+    <a href="https://x.com/RedVSBlueSolana" target="_blank"><img id="x" src="x64.png"></a>
+    
+
+
+
+    
+       
+        <div class="zoom-container">
+          <input type="range" id="zoomBar" class="zoom-bar" min="1" max="500" value="100" step="1">
+          <div class="zoom-value">
+            Zoom Level: <span id="zoomValue">100%</span>
+          </div>
+        </div>
+      
+
+
+
+<script>
+    var prevMcap = undefined
+    var newMcap = undefined
+    var mcap = document.getElementById('mcap')
+    var hw = document.getElementById('hw')
+    var mcapInUse = undefined 
+    var intStarted = false
+    var scaleValue = 1; 
+    var REDGLOBAL = undefined
+    var BLUEGLOBAL = undefined
+    
+    const ws = new WebSocket('wss://pumpportal.fun/api/data');
+
+
+    ws.onopen = function(event){
+        console.log("socket connected")
+        payload = {
+            "method": "subscribeTokenTrade",
+            "keys": ["",
+            ""] 
+        }
+          ws.send(JSON.stringify(payload));
+    
+    }
+
+    var redMint = ''
+    var blueMint = ''
+
+    let redCa = document.getElementById('redca')
+    redCa.textContent = `CA: ${redMint}`
+    let blueCa = document.getElementById('blueca')
+    blueCa.textContent = `CA: ${blueMint}`
+
+    ws.onmessage = function(event){
+        
+        console.log('received message')
+        let data = JSON.parse(event.data)
+        console.log(data.mint)
+        if(data.mint == redMint){
+            handleRed(JSON.parse(event.data))
+        }
+        if(data.mint == blueMint){
+            handleBlue(JSON.parse(event.data))
+        }
+
+        
+        
+    }
+
+    setInterval(bluePostMigrate, 1000)
+    setInterval(redPostMigrate, 1000)
+
+    var redMcap = undefined
+    var redPrevMcap = undefined 
+
+    function handleRed(data){
+        console.log('handling red')
+        console.log(data)
+        let redCircle = document.getElementById('redcircle')
+        let redMcapLabel = document.getElementById('redmcap')
+        let redHw = document.getElementById('redhw')
+        redMcap = data.marketCapSol * 166
+        REDGLOBAL = redMcap
+        console.log(redMcap)
+
+        if(redPrevMcap == undefined){
+            redPrevMcap = redMcap
+            let redNewHeight = ((redMcap / 500) + 25) * scaleValue
+            let redNewWidth = ((redMcap / 500) + 25) * scaleValue
+    
+            redCircle.style.height = `${redNewHeight}px`
+            redCircle.style.width = `${redNewWidth}px`
+            redMcapLabel.textContent = `Red Current Market Cap: ${redMcap}`
+            redhw.textContent = `Red Circle Current Height x Width: ${(redMcap / 500) + 25}px x ${(redMcap / 500) + 25}px`
+        }else{
+            if(redMcap > redPrevMcap){
+                console.log("red greater")
+                
+    
+                let redNewHeight = ((redMcap / 500) + 25) * scaleValue
+                let redNewWidth = ((redMcap / 500) + 25) * scaleValue
+    
+                redCircle.style.height = `${redNewHeight}px`
+                redCircle.style.width = `${redNewWidth}px`
+                redMcapLabel.textContent = `Red Current Market Cap: ${redMcap}`
+                redhw.textContent = `Red Circle Current Height x Width: ${(redMcap / 500) + 25}px x ${(redMcap / 500) + 25}px`
+                console.log(redCircle.style.border)
+                let borderVal = redNewHeight / 50
+                if(borderVal > 20){
+                    borderVal = 20
+                }
+                redCircle.style.border = `${borderVal}px solid lightgreen`
+                console.log(redCircle.style.border)
+                
+            }
+            if(redMcap < redPrevMcap){
+                console.log("red less")
+                let redNewHeight = ((redMcap / 500) + 25) * scaleValue
+                let redNewWidth = ((redMcap / 500) + 25) * scaleValue
+
+                
+    
+                redCircle.style.height = `${redNewHeight}px`
+                redCircle.style.width = `${redNewWidth}px`
+                redMcapLabel.textContent = `Red Current Market Cap: ${redMcap}`
+                redHw.textContent = `Red Circle Current Height x Width: ${(redMcap / 500) + 25}px x ${(redMcap / 500) + 25}px`
+                console.log(redCircle.style.border)
+
+                let borderVal = redNewHeight / 50
+                if(borderVal > 20){
+                    borderVal = 20
+                }
+                redCircle.style.border = `${borderVal}px solid lightred`
+                console.log(redCircle.style.border)
+
+                
+            }
+
+            
+        }
+
+        redPrevMcap = redMcap
+
+
+        
+        
+
+    }
+
+    var bluePrevMcap = undefined
+
+    function handleBlue(data){
+        console.log('handling blue')
+        console.log(data)
+        let blueCircle = document.getElementById('bluecircle')
+        let blueMcapLabel = document.getElementById('bluemcap')
+        let blueHw = document.getElementById('bluehw')
+        blueMcap = data.marketCapSol * 166
+        BLUEGLOBAL = blueMcap
+        if(blueMcap > 58000){
+            setInterval(bluePostMigrate, 5000)
+        }
+        console.log(blueMcap)
+
+        if(bluePrevMcap == undefined){
+            bluePrevMcap = blueMcap
+            let blueNewHeight = ((blueMcap / 500) + 25) * scaleValue
+            let blueNewWidth = ((blueMcap / 500) + 25) * scaleValue
+    
+            blueCircle.style.height = `${blueNewHeight}px`
+            blueCircle.style.width = `${blueNewWidth}px`
+            blueMcapLabel.textContent = `Blue Current Market Cap: ${blueMcap}`
+            bluehw.textContent = `Blue Circle Current Height x Width: ${(blueMcap / 500) + 25}px x ${(blueMcap / 500) + 25}px`
+        }else{
+            if(blueMcap > bluePrevMcap){
+                console.log("blue greater")
+                
+    
+                let blueNewHeight = ((blueMcap / 500) + 25) * scaleValue
+                let blueNewWidth = ((blueMcap / 500) + 25) * scaleValue
+    
+                blueCircle.style.height = `${blueNewHeight}px`
+                blueCircle.style.width = `${blueNewWidth}px`
+                blueMcapLabel.textContent = `Blue Current Market Cap: ${blueMcap}`
+                blueHw.textContent = `Blue Circle Current Height x Width: ${(blueMcap / 500) + 25}px x ${(blueMcap / 500) + 25}px`
+                console.log(blueCircle.style.border)
+                let borderVal = blueNewHeight / 50
+                if(borderVal > 20){
+                    borderVal = 20
+                }
+                blueCircle.style.border = `${borderVal}px solid lightgreen`
+                console.log(blueCircle.style.border)
+                
+            }
+            if(blueMcap < bluePrevMcap){
+                console.log("blue less")
+                let blueNewHeight = ((blueMcap / 500) + 25) * scaleValue
+                let blueNewWidth = ((blueMcap / 500) + 25) * scaleValue
+                console.log('bh', blueMcap, blueNewHeight, blueNewWidth)
+
+                
+    
+                blueCircle.style.height = `${blueNewHeight}px`
+                blueCircle.style.width = `${blueNewWidth}px`
+                blueMcapLabel.textContent = `Blue Current Market Cap: ${blueMcap}`
+                blueHw.textContent = `Blue Circle Current Height x Width: ${(blueMcap / 500) + 25}px x ${(blueMcap / 500) + 25}px`
+                console.log(blueCircle.style.border)
+
+                let borderVal = blueNewHeight / 50
+                if(borderVal > 20){
+                    borderVal = 20
+                }
+                blueCircle.style.border = `${borderVal}px solid lightred`
+                console.log(blueCircle.style.border)
+
+                
+            }
+
+            
+        }
+
+        bluePrevMcap = blueMcap
+
+
+        
+        
+
+    }
+
+    
+
+    async function redPostMigrate(){
+        let redCircle = document.getElementById('redcircle')
+        let redMcapLabel = document.getElementById('redmcap')
+        let redHw = document.getElementById('redhw')
+        console.log("Red post migration")
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${redMint}`, {
+            method: 'GET',
+            headers: {},
+        });
+        const data = await response.json()
+        let rMcap = data.pairs[0].marketCap
+        REDGLOBAL = rMcap
+
+        if(rMcap > 0){
+            if(rMcap > redPrevMcap){
+                let redNewHeight = ((rMcap / 500) + 25) * scaleValue
+                let redNewWidth = ((rMcap / 500) + 25) * scaleValue
+
+                redCircle.style.height = `${redNewHeight}px`
+                redCircle.style.width = `${redNewWidth}px`
+                redMcapLabel.textContent = `Red Current Market Cap: ${rMcap}`
+                redHw.textContent = `Red Circle Current Height x Width: ${(rMcap / 500) + 25}px x ${(rMcap / 500) + 25}px`
+
+            }else{
+                let redNewHeight = ((rMcap / 500) + 25) * scaleValue
+                let redNewWidth = ((rMcap / 500) + 25) * scaleValue
+
+                redCircle.style.height = `${redNewHeight}px`
+                redCircle.style.width = `${redNewWidth}px`
+                redMcapLabel.textContent = `Red Current Market Cap: ${rMcap}`
+                redHw.textContent = `Red Circle Current Height x Width: ${(rMcap / 500) + 25}px x ${(rMcap / 500) + 25}px`
+            }
+        }
+
+
+    }
+
+    async function bluePostMigrate(){
+        let blueCircle = document.getElementById('bluecircle')
+        let blueMcapLabel = document.getElementById('bluemcap')
+        let blueHw = document.getElementById('bluehw')
+        console.log("blue post migration")
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${blueMint}`, {
+            method: 'GET',
+            headers: {},
+        });
+        const data = await response.json()
+        let bMcap = data.pairs[0].marketCap
+        BLUEGLOBAL = bMcap
+
+        if(bMcap > 0){
+            if(bMcap > bluePrevMcap){
+                let blueNewHeight = ((bMcap / 500) + 25) * scaleValue
+                let blueNewWidth = ((bMcap / 500) + 25) * scaleValue
+
+                blueCircle.style.height = `${blueNewHeight}px`
+                blueCircle.style.width = `${blueNewWidth}px`
+                blueMcapLabel.textContent = `Blue Current Market Cap: ${bMcap}`
+                blueHw.textContent = `Blue Circle Current Height x Width: ${(bMcap / 500) + 25}px x ${(bMcap / 500) + 25}px`
+
+            }else{
+                let blueNewHeight = ((bMcap / 500) + 25) * scaleValue
+                let blueNewWidth = ((bMcap / 500) + 25) * scaleValue
+
+                blueCircle.style.height = `${blueNewHeight}px`
+                blueCircle.style.width = `${blueNewWidth}px`
+                blueMcapLabel.textContent = `Blue Current Market Cap: ${bMcap}`
+                blueHw.textContent = `Blue Circle Current Height x Width: ${(bMcap / 500) + 25}px x ${(bMcap / 500) + 25}px`
+            }
+        }
+
+
+    }
+
+
+
+    
+    
+    
+
+
+  
+
+    
+
+    
+
+    
+
+ 
+
+    const zoomBar = document.getElementById('zoomBar');
+    const zoomValue = document.getElementById('zoomValue');
+    const body = document.body;
+
+    // Event listener to update zoom level when the slider changes
+    zoomBar.addEventListener('input', () => {
+      scaleValue = zoomBar.value / 100;  // Get zoom level as a decimal
+      zoomValue.textContent = `${zoomBar.value}%`; // Display the current zoom level
+      
+    
+      let redNewHeight = ((REDGLOBAL / 500) + 25) * scaleValue;
+    let redNewWidth = ((REDGLOBAL / 500) + 25) * scaleValue;
+
+    let blueNewHeight = ((BLUEGLOBAL / 500) + 25) * scaleValue;
+    let blueNewWidth = ((BLUEGLOBAL / 500) + 25) * scaleValue;
+
+    
+
+    // Update the red circle's size and position to keep it centered
+    let redCircle = document.getElementById('redcircle');
+    redCircle.style.width = `${redNewWidth}px`;
+    redCircle.style.height = `${redNewHeight}px`;
+    redCircle.style.transform = `translate(-50%, -50%)`;  // Keep it centered
+
+    // Update the blue circle's size and position to keep it centered
+    let blueCircle = document.getElementById('bluecircle');
+    blueCircle.style.width = `${blueNewWidth}px`;
+    blueCircle.style.height = `${blueNewHeight}px`;
+    blueCircle.style.transform = `translate(-50%, -50%)`;  // Keep it centered
+
+      
+      
+     
+    });
+
+    // Initialize the zoom level at 100%
+    zoomBar.value = 100;
+
+</script>
+
+</body>
+</html>
